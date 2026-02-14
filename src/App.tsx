@@ -23,6 +23,7 @@ import AgentPaymentDetails from "./pages/AgentPaymentDetails";
 import EditRequests from "./pages/EditRequests";
 import PaymentSettings from "./pages/PaymentSettings";
 import PaymentManagement from "./pages/PaymentManagement";
+import FranchiseInquiries from "./pages/FranchiseInquiries";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ const App = () => (
               <Route path="/edit-requests" element={<EditRequests />} />
               <Route path="/payment-settings" element={<PaymentSettings />} />
               <Route path="/payments" element={<PaymentManagement />} />
+              <Route path="/franchise-inquiries" element={<FranchiseInquiries />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

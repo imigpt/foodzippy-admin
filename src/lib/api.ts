@@ -850,6 +850,64 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Franchise Inquiry APIs
+  async getFranchiseInquiries(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const queryString = queryParams.toString();
+    return this.request<PaginatedResponse<any>>(
+      `/api/franchise-inquiry${queryString ? `?${queryString}` : ''}`
+    );
+  }
+
+  async getFranchiseInquiry(id: string) {
+    return this.request<{
+      success: boolean;
+      data: any;
+    }>(`/api/franchise-inquiry/${id}`);
+  }
+
+  async updateFranchiseInquiry(id: string, data: { status?: string; notes?: string }) {
+    return this.request<{
+      success: boolean;
+      message: string;
+      data: any;
+    }>(`/api/franchise-inquiry/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteFranchiseInquiry(id: string) {
+    return this.request<{
+      success: boolean;
+      message: string;
+    }>(`/api/franchise-inquiry/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getFranchiseInquiryStats() {
+    return this.request<{
+      success: boolean;
+      data: {
+        total: number;
+        byStatus: Array<{ _id: string; count: number }>;
+      };
+    }>('/api/franchise-inquiry/stats');
+  }
 }
 
 // Payment interfaces
