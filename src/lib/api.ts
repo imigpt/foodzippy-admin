@@ -908,6 +908,67 @@ class ApiClient {
       };
     }>('/api/franchise-inquiry/stats');
   }
+
+  // Investor Inquiry APIs
+  async getInvestorInquiries(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    city?: string;
+    state?: string;
+    search?: string;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    const queryString = queryParams.toString();
+    return this.request<PaginatedResponse<any>>(
+      `/api/investor-inquiry${queryString ? `?${queryString}` : ''}`
+    );
+  }
+
+  async getInvestorInquiry(id: string) {
+    return this.request<{
+      success: boolean;
+      data: any;
+    }>(`/api/investor-inquiry/${id}`);
+  }
+
+  async updateInvestorInquiry(id: string, data: { status?: string; notes?: string }) {
+    return this.request<{
+      success: boolean;
+      message: string;
+      data: any;
+    }>(`/api/investor-inquiry/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteInvestorInquiry(id: string) {
+    return this.request<{
+      success: boolean;
+      message: string;
+    }>(`/api/investor-inquiry/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getInvestorInquiryStats() {
+    return this.request<{
+      success: boolean;
+      data: {
+        total: number;
+        byStatus: Array<{ _id: string; count: number }>;
+        topLocations: Array<{ _id: { city: string; state: string }; count: number }>;
+      };
+    }>('/api/investor-inquiry/stats');
+  }
 }
 
 // Payment interfaces

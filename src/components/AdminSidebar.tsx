@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, ClipboardList, LogOut, UserCog, ClipboardCheck, FileEdit, Briefcase, Settings, Store, IndianRupee, Wallet, BadgeDollarSign, Building2 } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, LogOut, UserCog, ClipboardCheck, FileEdit, Briefcase, Settings, Store, IndianRupee, Wallet, BadgeDollarSign, Building2, TrendingUp } from 'lucide-react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ const navItems = [
   { title: 'Vendor Onboarding-Ch', url: '/vendor-charges', icon: BadgeDollarSign },
   { title: 'Agents', url: '/agents', icon: UserCog },
   { title: 'Franchise Inquiries', url: '/franchise-inquiries', icon: Building2 },
+  { title: 'Investor Inquiries', url: '/investor-inquiries', icon: TrendingUp },
   { title: 'Employee Attendance', url: '/employee-attendance', icon: Briefcase },
   { title: 'Payments', url: '/payments', icon: Wallet },
   { title: 'Payment Settings', url: '/payment-settings', icon: IndianRupee },
