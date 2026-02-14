@@ -49,6 +49,7 @@ interface InvestorInquiry {
   city: string;
   state: string;
   companyName: string;
+  investorAmount: string;
   status: 'pending' | 'contacted' | 'in-progress' | 'approved' | 'rejected';
   notes: string;
   createdAt: string;
@@ -289,6 +290,7 @@ export default function InvestorInquiries() {
               <TableHead>Phone</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Company</TableHead>
+              <TableHead>Investment</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Submitted</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -297,13 +299,13 @@ export default function InvestorInquiries() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : filteredInquiries.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                   No investor inquiries found
                 </TableCell>
               </TableRow>
@@ -321,6 +323,9 @@ export default function InvestorInquiries() {
                   </TableCell>
                   <TableCell className="text-sm text-gray-600">
                     {inquiry.companyName || '-'}
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">
+                    {inquiry.investorAmount ? `₹ ${inquiry.investorAmount}` : '-'}
                   </TableCell>
                   <TableCell>
                     <Badge className={`${statusColors[inquiry.status]} border`}>
@@ -392,6 +397,10 @@ export default function InvestorInquiries() {
                 <div>
                   <Label className="text-sm font-medium text-gray-700">Company Name</Label>
                   <p className="mt-1 text-gray-900">{selectedInquiry.companyName || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Investment Amount</Label>
+                  <p className="mt-1 text-gray-900">{selectedInquiry.investorAmount || 'N/A'}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-700">Submitted</Label>
