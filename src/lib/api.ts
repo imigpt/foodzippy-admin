@@ -47,10 +47,31 @@ class ApiClient {
       headers,
     });
 
-    const data = await response.json();
+    // Safely parse response based on Content-Type
+    const contentType = response.headers.get('content-type') || '';
+    let data: any = null;
+
+    if (contentType.includes('application/json')) {
+      try {
+        data = await response.json();
+      } catch (err) {
+        // JSON parse failed
+        throw new Error('Invalid JSON response from server');
+      }
+    } else {
+      // Not JSON (could be HTML error page) - read as text
+      const text = await response.text();
+      // If response is ok, return raw text
+      if (response.ok) {
+        return text as any;
+      }
+      // Otherwise throw a clear error including the text (trim to reasonable length)
+      const short = text.length > 500 ? text.slice(0, 500) + '...' : text;
+      throw new Error(short || 'Request failed');
+    }
 
     if (!response.ok) {
-      throw new Error(data.message || 'Request failed');
+      throw new Error(data?.message || 'Request failed');
     }
 
     return data;
