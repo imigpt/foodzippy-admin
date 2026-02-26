@@ -20,14 +20,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
+    // Verify existing session against the server
     const token = localStorage.getItem('admin_token');
     const storedAdmin = localStorage.getItem('foodzippy_admin');
-    
+
     if (token && storedAdmin) {
-      setAdmin(JSON.parse(storedAdmin));
+      // Validate the token by hitting a lightweight protected endpoint
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/vendors?limit=1`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (res.ok) {
+            setAdmin(JSON.parse(storedAdmin));
+          } else {
+            // Token invalid/expired — clear it so user is sent to login
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('foodzippy_admin');
+          }
+        })
+        .catch(() => {
+          // Network error — keep the session so the user isn't logged out
+          // when the server is temporarily unavailable
+          setAdmin(JSON.parse(storedAdmin));
+        })
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {

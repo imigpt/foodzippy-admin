@@ -71,6 +71,15 @@ class ApiClient {
     }
 
     if (!response.ok) {
+      // Auto-logout when token is invalid or expired
+      if (response.status === 401) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('foodzippy_admin');
+        // Redirect to login only if not already there
+        if (window.location.pathname !== '/' && window.location.pathname !== '/login') {
+          window.location.href = '/';
+        }
+      }
       throw new Error(data?.message || 'Request failed');
     }
 
@@ -989,6 +998,213 @@ class ApiClient {
         topLocations: Array<{ _id: { city: string; state: string }; count: number }>;
       };
     }>('/api/investor-inquiry/stats');
+  }
+
+  // Career Application APIs
+  async getCareerApplications(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) queryParams.append(key, value.toString());
+      });
+    }
+    const queryString = queryParams.toString();
+    return this.request<PaginatedResponse<any>>(
+      `/api/careers${queryString ? `?${queryString}` : ''}`
+    );
+  }
+
+  async getCareerApplication(id: string) {
+    return this.request<{ success: boolean; data: any }>(`/api/careers/${id}`);
+  }
+
+  async updateCareerApplication(id: string, data: { status?: string; notes?: string }) {
+    return this.request<{ success: boolean; message: string; data: any }>(
+      `/api/careers/${id}`,
+      { method: 'PATCH', body: JSON.stringify(data) }
+    );
+  }
+
+  async deleteCareerApplication(id: string) {
+    return this.request<{ success: boolean; message: string }>(
+      `/api/careers/${id}`,
+      { method: 'DELETE' }
+    );
+  }
+
+  async getCareerApplicationStats() {
+    return this.request<{
+      success: boolean;
+      data: {
+        total: number;
+        byStatus: Array<{ _id: string; count: number }>;
+        byPosition: Array<{ _id: string; count: number }>;
+      };
+    }>('/api/careers/stats');
+  }
+
+  // ── Subscriber APIs ──
+
+  async getSubscribers(params?: { page?: number; limit?: number; status?: string; search?: string }) {
+    const qp = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        if (v !== undefined) qp.append(k, v.toString());
+      });
+    }
+    const qs = qp.toString();
+    return this.request<PaginatedResponse<any>>(`/api/subscribers${qs ? `?${qs}` : ''}`);
+  }
+
+  async getSubscriberStats() {
+    return this.request<{ success: boolean; data: { total: number; active: number; inactive: number } }>('/api/subscribers/stats');
+  }
+
+  async updateSubscriber(id: string, data: { status?: string }) {
+    return this.request<{ success: boolean; data: any }>(`/api/subscribers/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteSubscriber(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/api/subscribers/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async exportSubscribers() {
+    const token = this.getAuthToken();
+    const res = await fetch(`${API_BASE_URL}/api/subscribers/export`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Export failed');
+    return res.blob();
+  }
+
+  // ── Email Draft APIs ──
+
+  async getEmailDrafts() {
+    return this.request<{ success: boolean; data: any[] }>('/api/email-drafts');
+  }
+
+  async getEmailDraft(id: string) {
+    return this.request<{ success: boolean; data: any }>(`/api/email-drafts/${id}`);
+  }
+
+  async createEmailDraft(data: { subject: string; body: string }) {
+    return this.request<{ success: boolean; data: any }>('/api/email-drafts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateEmailDraft(id: string, data: { subject?: string; body?: string }) {
+    return this.request<{ success: boolean; data: any }>(`/api/email-drafts/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteEmailDraft(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/api/email-drafts/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async sendEmailDraft(id: string, subscriberIds?: string[]) {
+    return this.request<{ success: boolean; message: string; data: { sent: number; failed: number; total: number } }>(
+      `/api/email-drafts/${id}/send`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ subscriberIds: subscriberIds || [] }),
+      }
+    );
+  }
+
+  // ── Delivery Partner APIs ──
+
+  async getDeliveryPartners(params?: { page?: number; limit?: number; status?: string; search?: string }) {
+    const qs = params
+      ? Object.entries(params)
+          .filter(([, v]) => v !== undefined && v !== '' && v !== 'all')
+          .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
+          .join('&')
+      : '';
+    return this.request<{ success: boolean; data: any[]; pagination: { page: number; limit: number; total: number; pages: number } }>(
+      `/api/delivery-partners${qs ? `?${qs}` : ''}`
+    );
+  }
+
+  async getDeliveryPartner(id: string) {
+    return this.request<{ success: boolean; data: any }>(`/api/delivery-partners/${id}`);
+  }
+
+  async getDeliveryPartnerStats() {
+    return this.request<{ success: boolean; data: { total: number; pending: number; approved: number; rejected: number } }>(
+      '/api/delivery-partners/stats'
+    );
+  }
+
+  async approveDeliveryPartner(id: string, data: { loginId: string; password: string; emailSubject?: string; emailBody?: string }) {
+    return this.request<{ success: boolean; message: string; data: any }>(`/api/delivery-partners/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async rejectDeliveryPartner(id: string, reason?: string) {
+    return this.request<{ success: boolean; message: string; data: any }>(`/api/delivery-partners/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: reason || '' }),
+    });
+  }
+
+  async deleteDeliveryPartner(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/api/delivery-partners/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ── Email Template APIs ──
+
+  async getEmailTemplates() {
+    return this.request<{ success: boolean; data: any[] }>('/api/email-templates');
+  }
+
+  async getEmailTemplate(id: string) {
+    return this.request<{ success: boolean; data: any }>(`/api/email-templates/${id}`);
+  }
+
+  async createEmailTemplate(data: { name: string; subject: string; body: string; variables?: string[] }) {
+    return this.request<{ success: boolean; data: any }>('/api/email-templates', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateEmailTemplate(id: string, data: { subject?: string; body?: string; variables?: string[] }) {
+    return this.request<{ success: boolean; data: any }>(`/api/email-templates/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteEmailTemplate(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/api/email-templates/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async seedEmailTemplates() {
+    return this.request<{ success: boolean; message: string }>('/api/email-templates/seed', {
+      method: 'POST',
+    });
   }
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, ClipboardList, LogOut, UserCog, ClipboardCheck, FileEdit, Briefcase, Settings, Store, IndianRupee, Wallet, BadgeDollarSign, Building2, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, LogOut, UserCog, ClipboardCheck, FileEdit, Briefcase, Settings, Store, IndianRupee, Wallet, BadgeDollarSign, Building2, TrendingUp, GraduationCap, Mail, FileText, Truck, FileCode } from 'lucide-react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,11 @@ const navItems = [
   { title: 'Agents', url: '/agents', icon: UserCog },
   { title: 'Franchise Inquiries', url: '/franchise-inquiries', icon: Building2 },
   { title: 'Investor Inquiries', url: '/investor-inquiries', icon: TrendingUp },
+  { title: 'Career Applications', url: '/career-applications', icon: GraduationCap },
+  { title: 'Subscribers', url: '/subscribers', icon: Mail },
+  { title: 'Email Drafts', url: '/email-drafts', icon: FileText },
+  { title: 'Delivery Partners', url: '/delivery-partner-requests', icon: Truck },
+  { title: 'Email Templates', url: '/email-templates', icon: FileCode },
   { title: 'Employee Attendance', url: '/employee-attendance', icon: Briefcase },
   { title: 'Payments', url: '/payments', icon: Wallet },
   { title: 'Payment Settings', url: '/payment-settings', icon: IndianRupee },

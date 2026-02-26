@@ -25,6 +25,11 @@ import PaymentSettings from "./pages/PaymentSettings";
 import PaymentManagement from "./pages/PaymentManagement";
 import FranchiseInquiries from "./pages/FranchiseInquiries";
 import InvestorInquiries from "./pages/InvestorInquiries";
+import CareerApplications from "./pages/CareerApplications";
+import Subscribers from "./pages/Subscribers";
+import EmailDrafts from "./pages/EmailDrafts";
+import DeliveryPartnerRequests from "./pages/DeliveryPartnerRequests";
+import EmailTemplates from "./pages/EmailTemplates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +65,11 @@ const App = () => (
               <Route path="/payments" element={<PaymentManagement />} />
               <Route path="/franchise-inquiries" element={<FranchiseInquiries />} />
               <Route path="/investor-inquiries" element={<InvestorInquiries />} />
+              <Route path="/career-applications" element={<CareerApplications />} />
+              <Route path="/subscribers" element={<Subscribers />} />
+              <Route path="/email-drafts" element={<EmailDrafts />} />
+              <Route path="/delivery-partner-requests" element={<DeliveryPartnerRequests />} />
+              <Route path="/email-templates" element={<EmailTemplates />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
