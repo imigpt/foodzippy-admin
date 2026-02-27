@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (token && storedAdmin) {
       // Validate the token by hitting a lightweight protected endpoint
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/vendors?limit=1`, {
+      fetch(`${import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com'}/api/admin/vendors?limit=1`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => {
