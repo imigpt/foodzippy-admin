@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { api } from '@/lib/api';
+import { api, API_BASE_URL } from '@/lib/api';
 
 interface AdminUser {
   email: string;
@@ -15,18 +15,34 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper: fetch with automatic retry for Render cold-start
+async function fetchWithRetry(url: string, opts: RequestInit, retries = 2): Promise<Response> {
+  try {
+    return await fetch(url, opts);
+  } catch {
+    if (retries > 0) {
+      await new Promise((r) => setTimeout(r, 1500));
+      return fetchWithRetry(url, opts, retries - 1);
+    }
+    throw new Error('Network error');
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Wake up the Render backend immediately (fire-and-forget)
+    api.ping();
+
     // Verify existing session against the server
     const token = localStorage.getItem('admin_token');
     const storedAdmin = localStorage.getItem('foodzippy_admin');
 
     if (token && storedAdmin) {
-      // Validate the token by hitting a lightweight protected endpoint
-      fetch(`${import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com'}/api/admin/vendors?limit=1`, {
+      // Validate the token by hitting a lightweight protected endpoint (with retry)
+      fetchWithRetry(`${API_BASE_URL}/api/admin/vendors?limit=1`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => {

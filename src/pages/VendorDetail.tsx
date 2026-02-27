@@ -6,7 +6,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { api, normalizeVendor, PaymentConfig } from '@/lib/api';
+import { api, normalizeVendor, PaymentConfig, API_BASE_URL } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import MapPreview from '@/components/MapPreview';
 
@@ -122,10 +122,9 @@ export default function VendorDetail() {
   const handleListingChargeUpdate = async () => {
     try {
       setIsUpdatingListing(true);
-      const token = localStorage.getItem('admin_token'); // Changed from 'adminToken' to 'admin_token'
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
+      const token = localStorage.getItem('admin_token');
       
-      const response = await fetch(`${apiUrl}/api/admin/vendors/${id}/listing-charge`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/vendors/${id}/listing-charge`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -138,7 +137,7 @@ export default function VendorDetail() {
 
       if (response.ok) {
         // Also update listing type
-        const updateResponse = await fetch(`${apiUrl}/api/admin/vendors/${id}`, {
+        const updateResponse = await fetch(`${API_BASE_URL}/api/admin/vendors/${id}`, {
           method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${token}`,

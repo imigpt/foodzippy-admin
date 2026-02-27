@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Wallet, Search, TrendingUp, Check, IndianRupee } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Vendor {
   _id: string;
@@ -38,17 +39,16 @@ export default function VendorCharges() {
   const loadAllCounts = async () => {
     try {
       const token = localStorage.getItem('admin_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
       
       // Load counts for all tabs
       const [launchingRes, vipRes, normalRes] = await Promise.all([
-        fetch(`${apiUrl}/api/admin/vendors/listing/launching?limit=1`, {
+        fetch(`${API_BASE_URL}/api/admin/vendors/listing/launching?limit=1`, {
           headers: { 'Authorization': `Bearer ${token}` },
         }),
-        fetch(`${apiUrl}/api/admin/vendors/listing/vip?limit=1`, {
+        fetch(`${API_BASE_URL}/api/admin/vendors/listing/vip?limit=1`, {
           headers: { 'Authorization': `Bearer ${token}` },
         }),
-        fetch(`${apiUrl}/api/admin/vendors/listing/normal?limit=1`, {
+        fetch(`${API_BASE_URL}/api/admin/vendors/listing/normal?limit=1`, {
           headers: { 'Authorization': `Bearer ${token}` },
         }),
       ]);
@@ -73,9 +73,8 @@ export default function VendorCharges() {
     try {
       setLoading(true);
       const token = localStorage.getItem('admin_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
       
-      const response = await fetch(`${apiUrl}/api/admin/vendors/listing/${type}?limit=100`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/vendors/listing/${type}?limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -96,9 +95,8 @@ export default function VendorCharges() {
     try {
       setSavingVendor(vendorId);
       const token = localStorage.getItem('admin_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
       
-      const response = await fetch(`${apiUrl}/api/admin/vendors/${vendorId}/listing-charge`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/vendors/${vendorId}/listing-charge`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

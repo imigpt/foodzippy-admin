@@ -34,7 +34,8 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    _retries = 2
   ): Promise<T> {
     const token = this.getAuthToken();
     
@@ -51,10 +52,20 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+      });
+    } catch (networkError) {
+      // Retry on network errors (Render cold start, transient failures)
+      if (_retries > 0) {
+        await new Promise((r) => setTimeout(r, 1500));
+        return this.request<T>(endpoint, options, _retries - 1);
+      }
+      throw new Error('Server is waking up — please refresh the page in a few seconds.');
+    }
 
     // Safely parse response based on Content-Type
     const contentType = response.headers.get('content-type') || '';
