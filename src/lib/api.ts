@@ -1,4 +1,8 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (
+  typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? 'https://foodzippy-backend-h2ju.onrender.com'
+    : 'http://localhost:5000'
+);
 
 export interface ApiResponse<T> {
   success: boolean;
