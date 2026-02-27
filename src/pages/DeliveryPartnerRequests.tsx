@@ -82,6 +82,7 @@ export default function DeliveryPartnerRequests() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [retryStatus, setRetryStatus] = useState('');
 
   // Reject form
   const [rejectReason, setRejectReason] = useState('');
@@ -125,6 +126,9 @@ export default function DeliveryPartnerRequests() {
     setPassword('');
     setIsSubmitting(false);
 
+    // Ping the backend now to wake up Render so it's ready when the user clicks approve
+    api.ping().catch(() => {});
+
     // Try to load the default template
     try {
       const res = await api.getEmailTemplates();
@@ -157,24 +161,56 @@ export default function DeliveryPartnerRequests() {
       return;
     }
     setIsSubmitting(true);
-    try {
-      const res = await api.approveDeliveryPartner(selected._id, {
-        loginId: loginId.trim(),
-        password: password.trim(),
-        emailSubject,
-        emailBody,
-      });
-      if (res.success) {
-        toast({ title: 'Approved', description: 'Application approved and credentials sent' });
-        setIsApproveOpen(false);
-        fetchPartners();
-        fetchStats();
+    setRetryStatus('');
+
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 6000;
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        if (attempt > 1) {
+          setRetryStatus(`Retrying ${attempt}/${MAX_RETRIES}...`);
+        }
+        const res = await api.approveDeliveryPartner(selected._id, {
+          loginId: loginId.trim(),
+          password: password.trim(),
+          emailSubject,
+          emailBody,
+        });
+        if (res.success) {
+          toast({ title: 'Approved', description: 'Application approved and credentials sent' });
+          setIsApproveOpen(false);
+          setRetryStatus('');
+          fetchPartners();
+          fetchStats();
+          setIsSubmitting(false);
+          return;
+        }
+      } catch (err: any) {
+        const isNetworkError =
+          err.message === 'Failed to fetch' ||
+          err.message?.includes('NetworkError') ||
+          err.message?.includes('network error');
+
+        if (isNetworkError && attempt < MAX_RETRIES) {
+          setRetryStatus(`Server waking up… retrying in ${RETRY_DELAY_MS / 1000}s (${attempt}/${MAX_RETRIES})`);
+          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+          continue;
+        }
+
+        toast({
+          title: 'Error',
+          description: isNetworkError
+            ? 'Cannot reach the server. It may be starting up — please wait 30 seconds and try again.'
+            : err.message || 'Failed to approve',
+          variant: 'destructive',
+        });
+        break;
       }
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message || 'Failed to approve', variant: 'destructive' });
-    } finally {
-      setIsSubmitting(false);
     }
+
+    setRetryStatus('');
+    setIsSubmitting(false);
   };
 
   const openRejectDialog = (partner: DeliveryPartner) => {
@@ -488,7 +524,7 @@ export default function DeliveryPartnerRequests() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsApproveOpen(false)} disabled={isSubmitting}>Cancel</Button>
             <Button className="bg-green-600 hover:bg-green-700" onClick={handleApprove} disabled={isSubmitting}>
-              {isSubmitting ? 'Approving...' : 'Approve & Send Email'}
+              {retryStatus || (isSubmitting ? 'Approving...' : 'Approve & Send Email')}
             </Button>
           </DialogFooter>
         </DialogContent>

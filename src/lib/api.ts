@@ -1,5 +1,14 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
 
+// Wakeup ping — call this before any critical action to ensure Render is awake
+export async function pingBackend() {
+  try {
+    await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
+  } catch {
+    // ignore — this is just a wakeup call
+  }
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -84,6 +93,15 @@ class ApiClient {
     }
 
     return data;
+  }
+
+  // Wake up Render backend (fire-and-forget)
+  async ping() {
+    try {
+      await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
+    } catch {
+      // ignore — this is just a wakeup call
+    }
   }
 
   // Auth APIs
