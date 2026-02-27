@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
 
 export interface ApiResponse<T> {
   success: boolean;

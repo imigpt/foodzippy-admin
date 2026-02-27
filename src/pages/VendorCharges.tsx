@@ -38,7 +38,7 @@ export default function VendorCharges() {
   const loadAllCounts = async () => {
     try {
       const token = localStorage.getItem('admin_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
       
       // Load counts for all tabs
       const [launchingRes, vipRes, normalRes] = await Promise.all([
@@ -73,7 +73,7 @@ export default function VendorCharges() {
     try {
       setLoading(true);
       const token = localStorage.getItem('admin_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
       
       const response = await fetch(`${apiUrl}/api/admin/vendors/listing/${type}?limit=100`, {
         headers: {
@@ -96,7 +96,7 @@ export default function VendorCharges() {
     try {
       setSavingVendor(vendorId);
       const token = localStorage.getItem('admin_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://foodzippy-backend-h2ju.onrender.com';
       
       const response = await fetch(`${apiUrl}/api/admin/vendors/${vendorId}/listing-charge`, {
         method: 'PUT',
