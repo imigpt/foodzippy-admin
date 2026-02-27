@@ -178,7 +178,14 @@ export default function DeliveryPartnerRequests() {
           emailBody,
         });
         if (res.success) {
-          toast({ title: 'Approved', description: 'Application approved and credentials sent' });
+          const emailOk = (res as any).emailSent !== false;
+          toast({
+            title: 'Approved',
+            description: emailOk
+              ? 'Application approved and credentials sent via email'
+              : 'Application approved but email failed — please share credentials manually',
+            variant: emailOk ? 'default' : 'destructive',
+          });
           setIsApproveOpen(false);
           setRetryStatus('');
           fetchPartners();
